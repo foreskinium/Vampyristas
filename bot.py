@@ -2,13 +2,13 @@ import discord
 import random
 import time
 
-
 last_gif = ''
 last_replygif = ''
 
 TOKEN = 'MTA3NjM2ODMxMDI3NjQ2ODc0Ng.Gqv8TD.VsXGj7_OjI7RGSgZMKps8WxUzDE23iq9wgvKr8'
 my_id = 334013974704029700
 main_channel = 1076362742837022731
+voice_channel = 1076362742837022732
 replygif_chance = 0.5
 patylekdegrade_chance = 0.3
 randomgif_chance = 0.004
@@ -25,18 +25,26 @@ def run_discord_bot():
         print('Logged in as')
         print(client.user.name)
         print(client.user.id)
-        print('------')
+        print('------') 
 
+        ####################################################################
+        #connect to channel ################################################
+        ####################################################################
+        channel = client.get_channel(voice_channel)
+        await channel.connect()
+  
+        ####################################################################
+
+        ####################################################################
+        #send random gif on startup ########################################
+        ####################################################################
         channel = client.get_channel(main_channel)
-
-        ####################################################################
-        #send random gif on startup #########################################
-        ####################################################################
         with open('static/gifs.txt', 'r') as file:
             gifs = file.readlines()
     
         gif = random.choice(gifs).strip()
         await channel.send(gif)
+        print(f'Gif sent: {gif}')
         ####################################################################
 
 
