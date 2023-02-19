@@ -15,8 +15,9 @@ voice_channel = 1076362742837022732
 
 replygif_chance = 0.4
 patylekdegrade_chance = 0.3
-randomgif_chance = 0.004
+randomgif_chance = 0.003
 connect_chance = 0.01
+disconnect_chance = 0.01
 timezone = pytz.timezone('Europe/Vilnius')
 
 
@@ -88,17 +89,19 @@ def run_discord_bot():
                 except:
                     print('ERROR: Already in voice')
 
-        #if time is 02 am
-        if current_time.hour == 2:
+        #if time is from 2 am to 6 am and random chance is true
+        if (current_time.hour == 2 or current_time.hour == 3
+             or current_time.hour == 4 or current_time.hour == 5
+               or current_time.hour == 6) and random.random() < disconnect_chance:
             #try disconnect if error print "not in voice"
             try:     
-                await asyncio.sleep(random.randint(300, 1800))
                 for vc in client.voice_clients:
                     if vc.guild == message.guild:
                         await vc.disconnect()
                         print('Disconnected from voice')
             except:
                 print('ERROR: Not in voice')
+        
         
         #if message contains "henrik" somewhere inside it, bot sends random gif from static/replygifs.txt
         if 'henrik' in message.content.lower() and random.random() < replygif_chance:
@@ -110,10 +113,10 @@ def run_discord_bot():
                 replygif = random.choice(replygifs).strip()
 
             last_replygif = replygif
-            await asyncio.sleep(random.randint(5, 15))
+            await asyncio.sleep(random.randint(3, 5))
             await message.reply(replygif)
         elif 'henrik' in message.content.lower() and random.random() < patylekdegrade_chance:
-            await asyncio.sleep(random.randint(3, 6))
+            await asyncio.sleep(random.randint(3, 5))
             await message.reply('patylek degrade') 
 
         #if BOT got a private message send to me
