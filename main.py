@@ -5,19 +5,22 @@ from datetime import datetime
 import asyncio
 from discord import app_commands
 from discord.ext import commands
+from PIL import Image, ImageDraw, ImageOps
+from io import BytesIO
 
 last_gif = ''
 last_replygif = ''
+last_quote = ''
 is_connected = False
 
 
-TOKEN = ''
+TOKEN = 'MTA3NjY3MTI4MzMxMzUyNDg0Ng.GH2r8R.1xcvjQxrtRKT7E7HSMKre_br938AiVLgMKZSZ4'
 my_id = 334013974704029700
 main_channel = 1076362742837022731
 voice_channel = 1076362742837022732
 
-replygif_chance = 0.4
-patylekdegrade_chance = 0.3
+replygif_chance = 0.2
+patylekdegrade_chance = 0.2
 randomgif_chance = 0.003
 timezone = pytz.timezone('Europe/Vilnius')
 
@@ -72,7 +75,7 @@ async def on_message(message):
             gif = random.choice(gifs).strip()
 
         last_gif = gif
-        await asyncio.sleep(random.randint(1, 5))
+        #await asyncio.sleep(random.randint(1, 3))
         await message.channel.send(gif) 
 
     #if message contains "henrik" somewhere inside it, bot sends random gif from static/replygifs.txt
@@ -85,11 +88,14 @@ async def on_message(message):
             replygif = random.choice(replygifs).strip()
 
         last_replygif = replygif
-        await asyncio.sleep(random.randint(3, 5))
+        #await asyncio.sleep(random.randint(1, 3))
         await message.reply(replygif)
     elif 'henrik' in message.content.lower() and random.random() < patylekdegrade_chance:
-        await asyncio.sleep(random.randint(3, 5))
-        await message.reply('patylek degrade') 
+        #await asyncio.sleep(random.randint(1, 3))
+        #reply with 1 random line from static/patylekdegrade.txt
+        with open('static/patylekdegrade.txt', 'r') as file:
+            patylekdegrade = file.readlines()
+        await message.reply(random.choice(patylekdegrade).strip())
 
     #if BOT got a private message send to me
     if message.channel.type == discord.ChannelType.private:
@@ -158,6 +164,44 @@ async def gif(interaction: discord.Interaction):
     last_gif = gif
     await interaction.response.send_message(gif)
 
+#post 1 random phrase from static/henrik_scraped.txt, but not the last one
+@bot.tree.command(name="henrikquote")
+async def quote(interaction: discord.Interaction):
+    global last_quote
+    with open('static/henrik_scraped.txt', 'r', encoding='utf-8', errors='ignore') as file:
+        quotes = file.readlines()
+
+    quote = last_quote
+    while quote == last_quote:
+        quote = random.choice(quotes).strip()
+
+    last_quote = quote
+    await interaction.response.send_message(quote)
+
+#block command
+@bot.tree.command(name="block")
+@app_commands.describe(user="Išsirinkite degradą")
+async def wanted(interaction: discord.Interaction, user: discord.Member):
+    block = Image.open("static/block.png")
+    block1 = Image.open("static/block1.png")
+    block_mask = Image.open("static/block_mask.png")
+    
+    data = BytesIO(await user.display_avatar.read())
+    pfp = Image.open(data)
+
+    pfp = pfp.resize((54, 54))
+
+    block.paste(pfp, (56, 53))
+    block.paste(block1, (0, 0), mask=block_mask)
+
+
+    #save image
+    block.save("static/image.png")
+
+    #send image
+    file = discord.File("static/image.png", filename="image.png")
+    await interaction.response.send_message("blocked", ephemeral=True)
+    await interaction.channel.send(file=file)
 
 
 
