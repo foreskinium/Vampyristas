@@ -110,7 +110,7 @@ async def on_message(message):
                 #wait between 10 minutes and 3 hours
                 await asyncio.sleep(random.randint(600, 10800))
 
-                await channel.connect()
+                await channel.connect(self_mute=True)
                 print('Connected to voice channel')
             
     #if current time between 0 am and 11 am, disconnect from voice channel
@@ -129,6 +129,12 @@ async def on_message(message):
                 await voice.disconnect()
                 print('Disconnected from voice channel')
     
+    #if current time between 13 pm and 17 pm, set is_connected to False
+    if (current_time.hour == 13 or current_time.hour == 14
+            or current_time.hour == 15 or current_time.hour == 16
+            or current_time.hour == 17):
+        if is_connected == True:
+            is_connected = False
     
     
 #neonoir command
@@ -136,7 +142,7 @@ async def on_message(message):
 @app_commands.describe(user="Pasirinkite moteriškos lyties asmenį")
 async def greet(interaction: discord.Interaction, user: discord.Member):
     await interaction.response.send_message("neo noir", ephemeral=True)
-    await interaction.channel.send(f"{user.mention} :aktyvuota: turi kokiu nors underground neo-noir bangeriniu nuotrauku, ar dainu, ar kaip ir galvojau tiesiog front page scum normie material pas tave stalciuose?. Reik romance/old-school.  https://youtu.be/kPshx-3AFKo")
+    await interaction.channel.send(f"{user.mention} <:aktyvuota:749638815445942302> turi kokiu nors underground neo-noir bangeriniu nuotrauku, ar dainu, ar kaip ir galvojau tiesiog front page scum normie material pas tave stalciuose?. Reik romance/old-school.  https://youtu.be/kPshx-3AFKo")
 
 #post 1 random gif from gifs.txt
 @bot.tree.command(name="henrikgif")
